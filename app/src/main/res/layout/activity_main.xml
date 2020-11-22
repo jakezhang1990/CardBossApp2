@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <Button
+        android:id="@+id/btn_callInitDev"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="callInitDev"
+        android:textAllCaps="false"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"/>
+    <TextView
+        android:id="@+id/tv_initResult"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="initResult:"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btn_callInitDev"/>
+
+    <Button
+        android:id="@+id/btn_callCardReset"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="callCardReset get CardSn:"
+        android:textAllCaps="false"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_initResult"/>
+    <TextView
+        android:id="@+id/tv_CardSn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="CardSn:"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btn_callCardReset"/>
+    <TextView
+        android:id="@+id/tv_CardSnByte"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="CardSnbyte:"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_CardSn"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
