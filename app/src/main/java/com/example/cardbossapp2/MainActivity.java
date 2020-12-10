@@ -13,6 +13,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.cardlan.twoshowinonescreen.CardLanStandardBus;
+import com.cardlan.twoshowinonescreen.DeviceCardConfig;
 import com.cardlan.utils.ByteUtil;
 import com.example.cardbossapp2.util.CardReadWriteUtil;
 import com.example.cardbossapp2.util.CardReadWriteUtil2;
@@ -23,10 +25,11 @@ import java.util.Base64;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
+    private static final String NEW_CARD_KEYA="FFFFFFFFFFFF";//新卡秘钥
     Button btn_callInitDev,btn_callCardReset;
     TextView tv_initResult,tv_CardSn, tv_CardSnByte;
     CardReadWriteUtil mCardReadWriteUtil;
-
+    CardLanStandardBus mCardLanDevCtrl = new CardLanStandardBus();
 
     String mReadOrWriteCardSnHexStr;//16进制cardSn值
 
@@ -92,8 +95,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         if (v.equals(btn_callInitDev)){
             //init_device;
-            String init_result=mCardReadWriteUtil.initDev();
-            tv_initResult.setText(init_result);
+            int initResult = mCardLanDevCtrl.callInitDev();
+            if (0 == initResult || -2 == initResult || -3 == initResult || -4 == initResult) {
+                tv_initResult.setText("Init Devices success!");
+
+            } else {
+                tv_initResult.setText("Init Devices failure!");
+            }
+            Toast.makeText(this, tv_initResult.getText().toString().trim(), Toast.LENGTH_SHORT).show();
+//            String init_result=mCardReadWriteUtil.initDev();
+//            tv_initResult.setText(init_result);
         }else if (v.equals(btn_callCardReset)){
             //get card sn
             byte[] cardSnByteArray= mCardReadWriteUtil.getCardResetBytes();
@@ -111,26 +122,44 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if (!ByteUtil.notNull(cardSnByteArray)) {
                 Toast.makeText(this, "read not find the card !", Toast.LENGTH_SHORT).show();
                 return;
-            }else {
-                String cardSnHexStringNot=CardReadWriteUtil2.byteNotHexStr(cardSnByteArray);
-                Log.i(TAG,"read cardSnHexStringNot = "+cardSnHexStringNot);
-                String byte4Sn=cardSnHexStringNot.substring(0,7);//截取前8位
-                Log.i(TAG,"read substring 4byte hex = "+byte4Sn);
-                String keyA="0A"+byte4Sn+"81";
-                Log.i(TAG,"read keyA = "+keyA);
 
-                char readSector=10;//10扇区号
+            }else {
+
+                char readSector=stringToChar("10");//10扇区号
+                char readindex =stringToChar(mEditxt_read_index.getText().toString());
 //                char readSector = CardReadWriteUtil2.stringToChar(mEditxt_sector_read.getText().toString());
-                char readindex = CardReadWriteUtil2.stringToChar(mEditxt_read_index.getText().toString());
+//                char readindex = CardReadWriteUtil2.stringToChar(mEditxt_read_index.getText().toString());
                 byte sector = ByteUtil.intToByteTwo(readSector);
                 byte index = ByteUtil.intToByteTwo(readindex);
                 Log.i(TAG,"sector = "+sector +" index= "+index);
+
+                String cardSnHexStringNot=CardReadWriteUtil2.byteNotHexStr(cardSnByteArray);//按位取反并且转为16进制字符串
+                Log.i(TAG,"read cardSnHexStringNot = "+cardSnHexStringNot);
+                String byte4Sn=cardSnHexStringNot.substring(0,8);//截取前8位
+                Log.i(TAG,"read substring 4byte hex = "+byte4Sn);
+                String keyA="0A"+byte4Sn+"81";   //用户卡keyA生成规则
+                Log.i(TAG,"read keyA = "+keyA);
+
+                /**
+                 * TODO 问题：
+                 * 读卡规则，先按照已经写入了数据的卡，使用规则生成keyA，去读，如果读不出来，则按照新卡采用12F去读；
+                 * 但是，现在无法实现这样的逻辑，当第一次读失败之后，无法进行第二次读取了，请问是为啥呢？
+                 */
+                //
                 byte[] readTemp = null;
                 // the subsequent reads and writes need to be written using the computed read key
                 readTemp = mCardReadWriteUtil.callReadJNI(ByteUtil.byteToHex(sector),
                         ByteUtil.byteToHex(index), keyA, null);
                 if (ByteUtil.notNull(readTemp)) {
+                    //老卡
                     mTxtView_read_result.setText(ByteUtil.byteArrayToHexString(readTemp));
+                }else {
+                    //新卡
+                    byte[] readTemp2 = null;
+                    Log.i(TAG,"read keyA new card = "+NEW_CARD_KEYA);
+                    readTemp2 = mCardReadWriteUtil.callReadJNI(ByteUtil.byteToHex(sector),
+                            ByteUtil.byteToHex(index), NEW_CARD_KEYA, null);
+                    mTxtView_read_result.setText(ByteUtil.byteArrayToHexString(readTemp2));
                 }
             }
 
@@ -144,7 +173,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }else {
                 String cardSnHexStringNot=CardReadWriteUtil2.byteNotHexStr(cardSnByteArray);
                 Log.i(TAG,"write cardSnHexStringNot = "+cardSnHexStringNot);
-                String byte4Sn=cardSnHexStringNot.substring(0,7);//截取前8位
+                String byte4Sn=cardSnHexStringNot.substring(0,8);//截取前8位
                 Log.i(TAG,"write substring 4byte hex = "+byte4Sn);
                 String write_keyA="0A"+byte4Sn+"81";
                 Log.i(TAG,"write_keyA = "+write_keyA);
@@ -165,13 +194,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 int writeResult = mCardReadWriteUtil.callWriteJNI(writeSector, writeIndex, write_data_Hex, write_keyA, null);
                 Log.i(TAG,"write StatusOfWrite = "+writeResult);
 
-                if (writeResult == 5) {
+                if (writeResult == 5) {//DeviceCardConfig.MONE_CARD_WRITE_SUCCESS_STATUS
                     mTxtView_write_statusvalue.setText("StatusOfWrite is:" + writeResult);
                     Toast.makeText(this, "Writeing successfully !", Toast.LENGTH_SHORT).show();
+                }else if (writeResult == 2){
+                    write_keyA="FFFFFFFFFFFF";
+                    int writeResult2 = mCardReadWriteUtil.callWriteJNI(writeSector, writeIndex, write_data_Hex, write_keyA, null);
+                    Log.i(TAG,"write StatusOfWrite2 = "+writeResult2);
                 }
             }
+
+
+//            DeviceCardConfig.MONE_CARD_WRITE_SUCCESS_STATUS
+
         }
     }
 
+
+
+    private char stringToChar(String string) {
+        if (!ByteUtil.notNull(string)) {
+            string = "0";
+        }
+        int ivalue = Integer.parseInt(string);
+        return (char) ivalue;
+    }
 
 }

@@ -25,7 +25,8 @@ public class CardReadWriteUtil2 {
         if (!ByteUtil.notNull(string)) {
             string = "0";
         }
-        int ivalue = Integer.parseInt(string);
-        return (char) ivalue;
+//        int ivalue = Integer.parseInt(string);
+//        return (char) ivalue;
+        return ByteUtil.intStringToChar(Integer.valueOf(string,16).toString());
     }
 }
