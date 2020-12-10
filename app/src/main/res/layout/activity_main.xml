@@ -45,4 +45,173 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_CardSn"/>
 
+    <!--read-->
+    <LinearLayout
+        android:id="@+id/layout_read_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_CardSnByte"
+        android:orientation="vertical"
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="5dp">
+
+        <EditText
+            android:id="@+id/mEditxt_sector_read"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="输入要读的扇区号："
+            android:visibility="gone"
+            android:inputType="number"
+            android:maxLength="2"
+            android:maxLines="1"
+            android:textSize="20sp" />
+
+        <EditText
+            android:id="@+id/mEditxt_read_index"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="输入要读的块号："
+            android:inputType="number"
+            android:maxLength="2"
+            android:maxLines="1"
+            android:textSize="20sp" />
+
+        <EditText
+            android:id="@+id/mEditxt_read_key_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:hint="0a表示读操作，0b表示写操作"
+            android:maxLength="2"
+            android:maxLines="1"
+            android:visibility="gone"
+            android:textSize="20sp" />
+
+        <EditText
+            android:id="@+id/mEditxt_read_key"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:hint="12位的读操作的keyA"
+            android:maxLength="12"
+            android:visibility="gone"
+            android:textSize="20sp" />
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/layout_read_card_result"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/layout_read_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <Button
+            android:id="@+id/mBtn_read_card"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
+            android:layout_marginTop="5dp"
+            android:textAllCaps="false"
+            android:padding="5dp"
+            android:text="Read"
+            android:textSize="25sp" />
+        <TextView
+            android:id="@+id/mTxtView_read_result"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:text="ResultOfReading:"
+            android:layout_marginTop="5dp"
+            android:textSize="25sp" />
+    </LinearLayout>
+
+    <!--write-->
+    <LinearLayout
+        android:id="@+id/layout_write_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/layout_read_card_result"
+        android:orientation="vertical"
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="5dp">
+
+        <EditText
+            android:id="@+id/mEditxt_sector_write"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="输入要写入的扇区号："
+            android:inputType="number"
+            android:maxLength="2"
+            android:maxLines="1"
+            android:visibility="gone"
+            android:textSize="20sp" />
+
+        <EditText
+            android:id="@+id/mEditxt_write_index"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="输入要写入的块号："
+            android:inputType="number"
+            android:maxLength="2"
+            android:maxLines="1"
+            android:textSize="20sp" />
+
+        <EditText
+            android:id="@+id/mEditxt_write_key_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:hint="0a表示读操作，0b表示写操作"
+            android:maxLength="2"
+            android:maxLines="1"
+            android:visibility="gone"
+            android:textSize="20sp" />
+
+
+        <EditText
+            android:id="@+id/mEditxt_wirte_key"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:hint="写操作的keyA"
+            android:maxLength="12"
+            android:visibility="gone"
+            android:textColor="@android:color/black"
+            android:textSize="20sp" />
+        <EditText
+            android:id="@+id/mEditxt_wirte_data"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:hint="写入的数据"
+            android:maxLines="1"
+            android:inputType="number"
+            android:textSize="20sp" />
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/layout_write_card_result"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/layout_write_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <Button
+            android:id="@+id/mBtn_write_card"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
+            android:layout_marginTop="5dp"
+            android:textAllCaps="false"
+            android:padding="5dp"
+            android:text="Write"
+            android:textSize="25sp" />
+        <TextView
+            android:id="@+id/mTxtView_write_statusvalue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:text="StatusOfWrite is:"
+            android:layout_marginTop="5dp"
+            android:textSize="25sp" />
+    </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

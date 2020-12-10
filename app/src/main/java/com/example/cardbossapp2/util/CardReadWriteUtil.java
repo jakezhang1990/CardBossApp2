@@ -96,11 +96,133 @@ public class CardReadWriteUtil {
 //        return ByteUtil.intStringToChar(string);
     }
 
+    //输入keyA，如果不足12位则是新卡，使用12F作为keyA,转为字节数组传入so包
     private byte[] hexToByteArray(String hex) {
-        if (!ByteUtil.notNull(hex)) {//参数hex为空则取12F
+        if ((!ByteUtil.notNull(hex)) || hex.length()<12){//参数hex为空则取12F
             hex = "FFFFFFFFFFFF";
         }
         return ByteUtil.hexStringToByteArray(hex);
     }
+
+    //转为char数值
+    /*private char stringToChar(String string) {
+        if (!ByteUtil.notNull(string)) {
+            string = "0";
+        }
+
+        return ByteUtil.intStringToChar(string);
+    }*/
+
+
+    /**
+     * Reads data from a sector or block
+     * @param readSectorStr 扇区号 传入的是10进制的数
+     * @param readIndexStr 块号
+     * @param readkeyHexStr keyA
+     * @param readKeyAreaHexStr 表示读的控制位，传入null默认取值0a
+     * @return byte[]
+     */
+    public byte[] callReadJNI(String readSectorStr, String readIndexStr, String readkeyHexStr,
+                              String readKeyAreaHexStr) {
+        char readSector = CardReadWriteUtil2.stringToChar(readSectorStr);
+        char readIndex = CardReadWriteUtil2.stringToChar(readIndexStr);
+        byte[] readkeyHex = hexToByteArray(readkeyHexStr);
+        if (!ByteUtil.notNull(readKeyAreaHexStr)) {
+            readKeyAreaHexStr = "0a";
+        }
+
+        if (!readKeyAreaHexStr.equals("0a") && !readKeyAreaHexStr.equals("0b")) {
+            readKeyAreaHexStr = "0a";
+        }
+        char readKeyArea = ByteUtil.hexStringToChar(readKeyAreaHexStr);
+        return callReadJNI(readSector, readIndex, readkeyHex, readKeyArea);
+    }
+
+    /**
+     *
+     * @param readSector 扇区号 Sector index
+     * @param readindex  块号 block index
+     * @param readkey   keyA The check Key for the read operation
+     * @param readKeyArea  0a
+     * @return byte[]
+     */
+    public byte[] callReadJNI(char readSector, char readindex, byte[] readkey, char readKeyArea) {
+
+        //Initialization machine
+        initDev();
+        char one = 1;
+
+        if (!mHasGetResetBytes) {
+            byte[] resetByte = new byte[S_Reset_buffer_size];
+            int cardResult = mCardLanDevCtrl.callCardReset(resetByte);
+        }
+
+        byte[] readMsg = mCardLanDevCtrl.callReadOneSectorDataFromCard(readSector,
+                readindex, one,
+                readkey, readKeyArea);
+        if (ByteUtil.notNull(readMsg)) {
+            String realStr = ByteUtil.byteArrayToHexString(readMsg);
+            Log.i(TAG, "callReadJNI: realStr = "+realStr);
+            return readMsg;
+        }
+
+        Log.i(TAG, "callReadJNI: readMsg = null. realStr = null");
+        return null;
+    }
+
+
+    /**
+     * Writes data to the card
+     * @param writeSectorStr 扇区号
+     * @param writeindexStr 块号
+     * @param writeHexStr  Write hexadecimal
+     * @param hexWriteKey  default:"0xFFFFFFFFFFFF"
+     * @param writeKeyAreaStr  default:"0b"
+     * @return  Returns the status of the write operation was successful
+     */
+    public int callWriteJNI(String writeSectorStr, String writeindexStr, String writeHexStr, String
+            hexWriteKey, String writeKeyAreaStr) {
+        char writeSector = CardReadWriteUtil2.stringToChar(writeSectorStr);
+        char writeindex = CardReadWriteUtil2.stringToChar(writeindexStr);
+        byte[] writeKey = hexToByteArray(hexWriteKey);
+        if (!ByteUtil.notNull(writeKeyAreaStr)) {
+            writeKeyAreaStr = "0b";
+        }
+        if (!writeKeyAreaStr.equals("0a") && !writeKeyAreaStr.equals("0b")) {
+            writeKeyAreaStr = "0b";
+        }
+        char writeKeyArea = ByteUtil.hexStringToChar(writeKeyAreaStr);
+
+        return callWriteJNI(writeSector, writeindex, writeHexStr, writeKey, writeKeyArea);
+    }
+
+    /**
+     *
+     * @param writeSector
+     * @param writeindex
+     * @param writeHexStr
+     * @param writeKey
+     * @param readKeyArea
+     * @return
+     */
+    public int callWriteJNI(char writeSector, char writeindex, String writeHexStr, byte[]
+            writeKey, char readKeyArea) {
+
+        initDev();
+        //reset card
+        if (!mHasGetResetBytes) {
+            byte[] resetByte = new byte[S_Reset_buffer_size];
+            int cardResult = mCardLanDevCtrl.callCardReset(resetByte);
+        }
+
+        byte[] writeBytes = hexToByteArray(writeHexStr);
+        char one = 1;
+        int writeResult = mCardLanDevCtrl.callWriteOneSertorDataToCard(writeBytes,
+                writeSector,
+                writeindex, one,
+                writeKey, readKeyArea);
+        return writeResult;
+    }
+
 
 }
