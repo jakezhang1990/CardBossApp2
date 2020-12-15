@@ -76,6 +76,13 @@
             android:maxLength="2"
             android:maxLines="1"
             android:textSize="20sp" />
+        <TextView
+            android:id="@+id/keyA_TV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:hint="keyA= "
+            android:textSize="20sp" />
 
         <EditText
             android:id="@+id/mEditxt_read_key_type"
@@ -143,7 +150,6 @@
             android:inputType="number"
             android:maxLength="2"
             android:maxLines="1"
-            android:visibility="gone"
             android:textSize="20sp" />
 
         <EditText
@@ -187,6 +193,13 @@
             android:maxLines="1"
             android:inputType="number"
             android:textSize="20sp" />
+        <TextView
+            android:id="@+id/write_key_TV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:hint="keyB = "
+            android:textSize="20sp" />
     </LinearLayout>
     <LinearLayout
         android:id="@+id/layout_write_card_result"
@@ -202,10 +215,36 @@
             android:layout_marginTop="5dp"
             android:textAllCaps="false"
             android:padding="5dp"
-            android:text="Write"
+            android:text="keyA Write"
             android:textSize="25sp" />
         <TextView
             android:id="@+id/mTxtView_write_statusvalue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:text="StatusOfWrite is:"
+            android:layout_marginTop="5dp"
+            android:textSize="25sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layout_write_card_result2"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/layout_write_card_result"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <Button
+            android:id="@+id/mBtn_write_card2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
+            android:layout_marginTop="5dp"
+            android:textAllCaps="false"
+            android:padding="5dp"
+            android:text="keyB Write"
+            android:textSize="25sp" />
+        <TextView
+            android:id="@+id/mTxtView_write_statusvalue2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
