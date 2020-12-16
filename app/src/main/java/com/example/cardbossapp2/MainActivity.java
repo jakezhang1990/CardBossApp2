@@ -202,7 +202,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 char write_data_char = CardReadWriteUtil2.stringToChar(write_data);//转为char/int数据
                 String write_data_Hex = ByteUtil.intToHexString(write_data_char);//转为16进制字符串
-
+                Log.i(TAG, "用户卡write StatusOfWrite keyA写入参数 = " + "扇区号："+writeSector+"块号："+writeIndex+
+                        "写入的16进制数据："+write_data_Hex+"写操作传入的key:"+write_keyA);
                 //用户卡写入
                 int writeResult = mCardReadWriteUtil.callWriteJNI(writeSector, writeIndex, write_data_Hex, write_keyA, null);
                 Log.i(TAG, "write StatusOfWrite keyA写入结果返回码 = " + writeResult);
@@ -221,6 +222,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         Toast.makeText(this, "write not find the card !", Toast.LENGTH_SHORT).show();
                         return;
                     }
+                    Log.i(TAG, "新卡write StatusOfWrite keyA写入参数 = " + "扇区号："+writeSector+"块号："+writeIndex+
+                            "写入的16进制数据："+write_data_Hex+"写操作传入的key:"+NEW_CARD_KEYA);
                     //write_keyA="FFFFFFFFFFFF";
                     int writeResult2 = mCardReadWriteUtil.callWriteJNI(writeSector, writeIndex, write_data_Hex, NEW_CARD_KEYA, null);
                     Log.i(TAG, "write StatusOfWrite2 新卡写入结果返回码= " + writeResult2);
@@ -254,8 +257,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             }
 
-//            String writeSector = "10";
-                String writeSector=mEditxt_sector_write.getText().toString().trim();
+            String writeSector = "10";
+//                String writeSector=mEditxt_sector_write.getText().toString().trim();
             String writeIndex = TextUtils.isEmpty(mEditxt_write_index.getText().toString().trim()) ? "0" : mEditxt_write_index.getText().toString().trim();
 
             //int money= 100000;
@@ -267,6 +270,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             char write_data_char = CardReadWriteUtil2.stringToChar(write_data);//转为char/int数据
             String write_data_Hex = ByteUtil.intToHexString(write_data_char);//转为16进制字符串
             Log.i(TAG, "keyB write KEY_B = " + KEY_B);
+
+            Log.i(TAG, "用户卡write StatusOfWrite keyB写入参数 = " + "扇区号："+writeSector+"块号："+writeIndex+
+                    "写入的16进制数据："+write_data_Hex+"写操作传入的keyB:"+KEY_B);
+//ByteUtil.byteArrayToHexString(new byte[4])
             //用户卡写入
             int writeResult = mCardReadWriteUtil.callWriteJNI(writeSector, writeIndex, write_data_Hex, KEY_B, null);
             Log.i(TAG, "write StatusOfWrite keyB写入结果返回码 = " + writeResult);
