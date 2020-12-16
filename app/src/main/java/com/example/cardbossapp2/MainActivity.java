@@ -19,8 +19,11 @@ import com.example.cardbossapp2.util.CardReadWriteUtil2;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
+    TextView keyA_TV , write_key_TV;
+    private static final String KEY_B="A2020BC1027D";
+
     private static final String NEW_CARD_KEYA = "FFFFFFFFFFFF";//新卡秘钥
-    Button btn_callInitDev, btn_callCardReset;
+    Button btn_callInitDev, btn_callCardReset, mBtn_write_card2;
     TextView tv_initResult, tv_CardSn, tv_CardSnByte;
     CardReadWriteUtil mCardReadWriteUtil;
     CardLanStandardBus mCardLanDevCtrl = new CardLanStandardBus();
@@ -42,6 +45,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        keyA_TV=findViewById(R.id.keyA_TV);
+        write_key_TV=findViewById(R.id.write_key_TV);
 
         btn_callInitDev = findViewById(R.id.btn_callInitDev);
         btn_callCardReset = findViewById(R.id.btn_callCardReset);
@@ -65,6 +71,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mBtn_write_card = findViewById(R.id.mBtn_write_card);
         mTxtView_write_statusvalue = findViewById(R.id.mTxtView_write_statusvalue);
 
+        mBtn_write_card2=findViewById(R.id.mBtn_write_card2);//keyB 写按钮
     }
 
     @Override
@@ -74,6 +81,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btn_callCardReset.setOnClickListener(this);
         mBtn_read_card.setOnClickListener(this);
         mBtn_write_card.setOnClickListener(this);
+
+        mBtn_write_card2.setOnClickListener(this);
     }
 
     /**
@@ -144,7 +153,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (ByteUtil.notNull(readTemp)) {
                     //老卡读卡
                     mTxtView_read_result.setText(ByteUtil.byteArrayToHexString(readTemp));
-
+                    keyA_TV.setText("read keyA = "+keyA);
                 } else {
                     //新卡读卡
                     byte[] cardSnByteArray2 = mCardReadWriteUtil.getCardResetBytes();
@@ -158,7 +167,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     readTemp2 = mCardReadWriteUtil.callReadJNI(ByteUtil.byteToHex(sector),
                             ByteUtil.byteToHex(index), NEW_CARD_KEYA, null);
                     mTxtView_read_result.setText(ByteUtil.byteArrayToHexString(readTemp2));
-
+                    keyA_TV.setText("read keyA = "+NEW_CARD_KEYA);
                 }
 
             }
@@ -196,7 +205,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 //用户卡写入
                 int writeResult = mCardReadWriteUtil.callWriteJNI(writeSector, writeIndex, write_data_Hex, write_keyA, null);
-                Log.i(TAG, "write StatusOfWrite = " + writeResult);
+                Log.i(TAG, "write StatusOfWrite keyA写入结果返回码 = " + writeResult);
 
                 if (writeResult == DeviceCardConfig.MONE_CARD_WRITE_SUCCESS_STATUS) {//5
 
@@ -204,20 +213,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     Toast.makeText(this, "Writeing successfully !", Toast.LENGTH_SHORT).show();
 
                 } else if (writeResult == 2) {//2表示秘钥验证失败
+                    Toast.makeText(this, "keyA 方式写入失败 ! 状态码为： "+writeResult, Toast.LENGTH_SHORT).show();
                     //新卡写入
                     byte[] cardSnByteArray2 = mCardReadWriteUtil.getCardResetBytes();
-                    Log.i(TAG, "write keyA new card = " + NEW_CARD_KEYA);
+                    Log.i(TAG, "按照新卡方式写入write keyA new card = " + NEW_CARD_KEYA);
                     if (!ByteUtil.notNull(cardSnByteArray2)) {
                         Toast.makeText(this, "write not find the card !", Toast.LENGTH_SHORT).show();
                         return;
                     }
                     //write_keyA="FFFFFFFFFFFF";
                     int writeResult2 = mCardReadWriteUtil.callWriteJNI(writeSector, writeIndex, write_data_Hex, NEW_CARD_KEYA, null);
-                    Log.i(TAG, "write StatusOfWrite2 = " + writeResult2);
+                    Log.i(TAG, "write StatusOfWrite2 新卡写入结果返回码= " + writeResult2);
 
                     if (writeResult2 == DeviceCardConfig.MONE_CARD_WRITE_SUCCESS_STATUS) {
                         mTxtView_write_statusvalue.setText("StatusOfWrite is: " + writeResult2);
                         Toast.makeText(this, "Writeing successfully !", Toast.LENGTH_SHORT).show();
+                    }else{
+                        Toast.makeText(this, "12F 写入失败 ! 状态码为： "+writeResult2, Toast.LENGTH_SHORT).show();
                     }
 
                 } else {
@@ -230,6 +242,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 //            DeviceCardConfig.MONE_CARD_WRITE_SUCCESS_STATUS
 
+        }else if (v.equals(mBtn_write_card2)){
+            // keyB write action
+            write_key_TV.setText("keyB = "+KEY_B);
+            byte[] cardSnByteArray = mCardReadWriteUtil.getCardResetBytes();
+            Log.i(TAG, "keyB write cardSn = " + ByteUtil.byteArrayToHexString(cardSnByteArray));
+
+            if (!ByteUtil.notNull(cardSnByteArray)) {
+                Toast.makeText(this, "write not find the card !", Toast.LENGTH_SHORT).show();
+                return;
+
+            }
+
+//            String writeSector = "10";
+                String writeSector=mEditxt_sector_write.getText().toString().trim();
+            String writeIndex = TextUtils.isEmpty(mEditxt_write_index.getText().toString().trim()) ? "0" : mEditxt_write_index.getText().toString().trim();
+
+            //int money= 100000;
+            String write_data = mEditxt_wirte_data.getText().toString().trim();
+            if (TextUtils.isEmpty(write_data)) {
+                Toast.makeText(this, "写入数据不能为空", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            char write_data_char = CardReadWriteUtil2.stringToChar(write_data);//转为char/int数据
+            String write_data_Hex = ByteUtil.intToHexString(write_data_char);//转为16进制字符串
+            Log.i(TAG, "keyB write KEY_B = " + KEY_B);
+            //用户卡写入
+            int writeResult = mCardReadWriteUtil.callWriteJNI(writeSector, writeIndex, write_data_Hex, KEY_B, null);
+            Log.i(TAG, "write StatusOfWrite keyB写入结果返回码 = " + writeResult);
+            Toast.makeText(this, "keyB写入结果返回码 = "+ writeResult, Toast.LENGTH_SHORT).show();
         }
     }
 
